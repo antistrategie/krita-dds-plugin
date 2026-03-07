@@ -3,6 +3,14 @@ import sys
 
 _EXPECTED_PYTHON = (3, 10)
 
+
+def _deps_path():
+    if sys.platform == "win32":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+        return os.path.join(base, "krita", "python-deps")
+    return os.path.expanduser("~/.local/share/krita/python-deps")
+
+
 if sys.version_info[:2] != _EXPECTED_PYTHON:
     from PyQt5.QtWidgets import QMessageBox
 
@@ -11,14 +19,15 @@ if sys.version_info[:2] != _EXPECTED_PYTHON:
         "DDS Import/Export",
         f"Krita's Python version changed from {'.'.join(map(str, _EXPECTED_PYTHON))} "
         f"to {sys.version_info[0]}.{sys.version_info[1]}.\n"
-        f"Reinstall Pillow: pip install --target=~/.local/lib/python-krita-deps "
+        f"Reinstall Pillow:\n"
+        f"pip install --target=\"{_deps_path()}\" "
         f"--python-version={sys.version_info[0]}.{sys.version_info[1]} --only-binary=:all: Pillow",
     )
 
 # Add persistent Pillow install to path
-_deps_path = os.path.expanduser("~/.local/lib/python-krita-deps")
-if _deps_path not in sys.path:
-    sys.path.insert(0, _deps_path)
+_path = _deps_path()
+if _path not in sys.path:
+    sys.path.insert(0, _path)
 
 from .dds_import_export import DDSImportExport
 

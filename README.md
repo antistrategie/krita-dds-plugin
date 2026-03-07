@@ -10,8 +10,14 @@ A Krita plugin for importing and exporting DDS files using Pillow. Works with Kr
 
 1. Install Pillow for Krita's Python:
 
+**Linux:**
 ```sh
-pip install --target=~/.local/lib/python-krita-deps --python-version=3.10 --only-binary=:all: Pillow
+pip install --target=~/.local/share/krita/python-deps --python-version=3.10 --only-binary=:all: Pillow
+```
+
+**Windows:**
+```powershell
+pip install --target="%APPDATA%\krita\python-deps" --python-version=3.10 --only-binary=:all: Pillow
 ```
 
 2. Download the latest `dds_import_export.zip` from [releases](https://github.com/antistrategie/krita-dds-plugin/releases), then in Krita go to **Tools > Scripts > Import Python Plugins...** and select the zip.
