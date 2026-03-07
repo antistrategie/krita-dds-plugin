@@ -4,7 +4,14 @@ import tempfile
 
 from krita import Extension, Krita
 from PIL import Image
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import (
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QMessageBox,
+    QVBoxLayout,
+)
 
 # DDS header constants
 _DDS_MAGIC = b"DDS "
@@ -62,7 +69,7 @@ def _parse_uncompressed_dds(path):
     out_bpp = 4 if has_alpha else 3
 
     for i in range(width * height):
-        raw = int.from_bytes(pixel_data[i * bpp:(i + 1) * bpp], "little")
+        raw = int.from_bytes(pixel_data[i * bpp : (i + 1) * bpp], "little")
         pixels[i * out_bpp] = (raw >> r_shift) & 0xFF
         pixels[i * out_bpp + 1] = (raw >> g_shift) & 0xFF
         pixels[i * out_bpp + 2] = (raw >> b_shift) & 0xFF
@@ -141,12 +148,29 @@ class DDSImportExport(Extension):
         if not save_file.lower().endswith(".dds"):
             save_file += ".dds"
 
+        dialog = QDialog()
+        dialog.setWindowTitle("DDS Export Options")
+        layout = QVBoxLayout(dialog)
+        flip_check = QCheckBox("Flip vertically")
+        layout.addWidget(flip_check)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        if dialog.exec_() != QDialog.Accepted:
+            return
+
         try:
+            original_path = doc.fileName()
             with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
                 tmp_path = tmp.name
             doc.saveAs(tmp_path)
+            doc.setFileName(original_path)
 
             img = Image.open(tmp_path)
+            if flip_check.isChecked():
+                img = img.transpose(Image.FLIP_TOP_BOTTOM)
             img.save(save_file, "DDS")
             os.unlink(tmp_path)
 

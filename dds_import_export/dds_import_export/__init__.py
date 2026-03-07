@@ -20,7 +20,7 @@ if sys.version_info[:2] != _EXPECTED_PYTHON:
         f"Krita's Python version changed from {'.'.join(map(str, _EXPECTED_PYTHON))} "
         f"to {sys.version_info[0]}.{sys.version_info[1]}.\n"
         f"Reinstall Pillow:\n"
-        f"pip install --target=\"{_deps_path()}\" "
+        f'pip install --target="{_deps_path()}" '
         f"--python-version={sys.version_info[0]}.{sys.version_info[1]} --only-binary=:all: Pillow",
     )
 
